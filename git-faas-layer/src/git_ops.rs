@@ -191,7 +191,7 @@ pub async fn generate_diff(
         let tmp = tempfile::tempdir().map_err(|e| AppError::Internal(e.to_string()))?;
 
         // We need a full clone to access arbitrary SHAs
-        let mut fetch_opts = make_fetch_options(token.as_deref());
+        let fetch_opts = make_fetch_options(token.as_deref());
         let repo = RepoBuilder::new()
             .fetch_options(fetch_opts)
             .clone(&repo_url, tmp.path())
@@ -218,7 +218,7 @@ pub async fn generate_diff(
             .diff_tree_to_tree(Some(&base_oid), Some(&target_oid), Some(&mut diff_opts))
             .map_err(AppError::Git)?;
 
-        let mut files: Vec<FileDiff> = Vec::new();
+        let files: std::cell::RefCell<Vec<FileDiff>> = std::cell::RefCell::new(Vec::new());
 
         diff.foreach(
             &mut |delta, _progress| {
@@ -229,7 +229,7 @@ pub async fn generate_diff(
                     .map(|p| p.to_string_lossy().into_owned())
                     .unwrap_or_default();
                 let status = format!("{:?}", delta.status());
-                files.push(FileDiff {
+                files.borrow_mut().push(FileDiff {
                     path,
                     status,
                     hunks: Vec::new(),
@@ -245,7 +245,7 @@ pub async fn generate_diff(
                     .map(|p| p.to_string_lossy().into_owned())
                     .unwrap_or_default();
                 let header = String::from_utf8_lossy(hunk.header()).into_owned();
-                if let Some(fd) = files.iter_mut().find(|f| f.path == path) {
+                if let Some(fd) = files.borrow_mut().iter_mut().find(|f| f.path == path) {
                     fd.hunks.push(header);
                 }
                 true
@@ -254,7 +254,9 @@ pub async fn generate_diff(
         )
         .map_err(AppError::Git)?;
 
-        Ok(DiffResponse { files })
+        Ok(DiffResponse {
+            files: files.into_inner(),
+        })
     })
     .await
     .map_err(|e| AppError::Internal(e.to_string()))?
