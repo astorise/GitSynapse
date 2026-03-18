@@ -1,8 +1,8 @@
 use std::path::Path;
 
 use git2::{
-    build::RepoBuilder, Cred, DiffOptions, FetchOptions, PushOptions, RemoteCallbacks,
-    Repository, Signature,
+    Cred, DiffOptions, FetchOptions, PushOptions, RemoteCallbacks, Repository, Signature,
+    build::RepoBuilder,
 };
 
 use crate::error::AppError;
@@ -14,9 +14,8 @@ use crate::models::{
 fn make_fetch_options<'a>(token: Option<&'a str>) -> FetchOptions<'a> {
     let mut callbacks = RemoteCallbacks::new();
     if let Some(tok) = token {
-        callbacks.credentials(move |_url, _username, _allowed| {
-            Cred::userpass_plaintext("oauth2", tok)
-        });
+        callbacks
+            .credentials(move |_url, _username, _allowed| Cred::userpass_plaintext("oauth2", tok));
     }
     let mut fetch_opts = FetchOptions::new();
     fetch_opts.remote_callbacks(callbacks);
@@ -24,7 +23,10 @@ fn make_fetch_options<'a>(token: Option<&'a str>) -> FetchOptions<'a> {
 }
 
 /// Clone the repository to a temp dir (shallow via depth=1) and return it.
-fn shallow_clone(repo_url: &str, branch: &str) -> Result<(Repository, tempfile::TempDir), AppError> {
+fn shallow_clone(
+    repo_url: &str,
+    branch: &str,
+) -> Result<(Repository, tempfile::TempDir), AppError> {
     let token = std::env::var("GITLAB_TOKEN").ok();
     let tmp = tempfile::tempdir().map_err(|e| AppError::Internal(e.to_string()))?;
 
@@ -151,10 +153,7 @@ pub async fn create_in_memory_commit(req: CommitRequest) -> Result<CommitRespons
 
         // Step 7: push to remote
         let mut remote = repo.find_remote("origin").map_err(AppError::Git)?;
-        let refspec = format!(
-            "refs/heads/{}:refs/heads/{}",
-            req.branch, req.branch
-        );
+        let refspec = format!("refs/heads/{}:refs/heads/{}", req.branch, req.branch);
 
         let mut push_callbacks = RemoteCallbacks::new();
         if let Some(tok) = token {

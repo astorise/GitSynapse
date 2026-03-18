@@ -3,7 +3,7 @@ mod git_ops;
 mod handlers;
 mod models;
 
-use axum::{routing::post, Router};
+use axum::{Router, routing::post};
 
 #[tokio::main]
 async fn main() {
@@ -20,7 +20,5 @@ async fn main() {
 
     tracing::info!("listening on {}", listener.local_addr().unwrap());
 
-    axum::serve(listener, app)
-        .await
-        .expect("server error");
+    axum::serve(listener, app).await.expect("server error");
 }

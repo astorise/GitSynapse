@@ -23,6 +23,7 @@ pub async fn commit_handler(
 pub async fn diff_handler(
     Json(payload): Json<DiffRequest>,
 ) -> Result<Json<DiffResponse>, AppError> {
-    let response = git_ops::generate_diff(payload.repo_url, payload.base_sha, payload.target_sha).await?;
+    let response =
+        git_ops::generate_diff(payload.repo_url, payload.base_sha, payload.target_sha).await?;
     Ok(Json(response))
 }
