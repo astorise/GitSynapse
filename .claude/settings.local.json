@@ -3,7 +3,8 @@
     "allow": [
       "Bash(openspec validate:*)",
       "Bash(openspec status:*)",
-      "Bash(openspec instructions:*)"
+      "Bash(openspec instructions:*)",
+      "Bash(cargo new:*)"
     ]
   }
 }

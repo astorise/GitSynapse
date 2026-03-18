@@ -3,7 +3,7 @@
 ## ADDED Requirements
 
 ### Requirement: Endpoint d'extraction de contexte
-Le service doit fournir une route `POST /api/v1/context` permettant à un agent IA de récupérer le contenu texte de fichiers spécifiques sans cloner tout l'historique du dépôt.
+Le service SHALL fournir une route `POST /api/v1/context` permettant à un agent IA de récupérer le contenu texte de fichiers spécifiques sans cloner tout l'historique du dépôt.
 
 #### Scenario: Extraction réussie de fichiers multiples
 - **WHEN** un payload JSON valide avec une liste de chemins de fichiers est envoyé
@@ -17,7 +17,7 @@ Le service doit fournir une route `POST /api/v1/context` permettant à un agent 
 - **THEN** le code HTTP de retour est 200 OK (partial success) ou 404 (si aucun fichier n'est trouvé)
 
 ### Requirement: Endpoint de création de commit
-Le service doit fournir une route `POST /api/v1/commit` permettant à l'IA de proposer ses modifications de code.
+Le service SHALL fournir une route `POST /api/v1/commit` permettant à l'IA de proposer ses modifications de code.
 
 #### Scenario: Commit en mémoire
 - **WHEN** un payload contenant des modifications de code (`new_content`) et un message de commit est reçu
@@ -26,7 +26,7 @@ Le service doit fournir une route `POST /api/v1/commit` permettant à l'IA de pr
 - **THEN** le service retourne le SHA du nouveau commit
 
 ### Requirement: Endpoint de révision (Diff)
-Le service doit fournir une route `POST /api/v1/diff` (ou GET avec query params) pour la supervision humaine et le modèle "Senior".
+Le service SHALL  fournir une route `POST /api/v1/diff` (ou GET avec query params) pour la supervision humaine et le modèle "Senior".
 
 #### Scenario: Génération de diff structuré
 - **WHEN** les SHA de deux commits (base et target) sont fournis
@@ -34,7 +34,7 @@ Le service doit fournir une route `POST /api/v1/diff` (ou GET avec query params)
 - **THEN** retourne un format JSON structuré par fichier modifié, et non un simple texte unifié
 
 ### Requirement: Déploiement Knative et Linkerd
-Le service doit être déployable sur Kubernetes en mode Serverless.
+Le service SHALL être déployable sur Kubernetes en mode Serverless.
 
 #### Scenario: Configuration des manifestes
 - **WHEN** le manifeste de déploiement (Knative Service) est généré
