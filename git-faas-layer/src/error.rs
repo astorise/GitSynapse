@@ -7,6 +7,7 @@ use serde_json::json;
 use thiserror::Error;
 
 #[derive(Debug, Error)]
+#[allow(dead_code)]
 pub enum AppError {
     #[error("Git error: {0}")]
     Git(#[from] git2::Error),

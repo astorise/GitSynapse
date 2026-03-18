@@ -47,7 +47,6 @@ fn shallow_clone(
 // ---------------------------------------------------------------------------
 
 pub async fn extract_context(req: ExtractRequest) -> Result<ExtractResponse, AppError> {
-    let req = req; // move into blocking closure
     tokio::task::spawn_blocking(move || {
         let (repo, _tmp) = shallow_clone(&req.repo_url, &req.branch)?;
         let head = repo.head().map_err(AppError::Git)?;
