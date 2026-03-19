@@ -1,0 +1,44 @@
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: gitworkspaces.gitsynapse.dev
+spec:
+  group: gitsynapse.dev
+  names:
+    kind: GitWorkspace
+    listKind: GitWorkspaceList
+    plural: gitworkspaces
+    singular: gitworkspace
+  scope: Namespaced
+  versions:
+    - name: v1alpha1
+      served: true
+      storage: true
+      schema:
+        openAPIV3Schema:
+          type: object
+          properties:
+            spec:
+              type: object
+              required:
+                - repoUrl
+                - branch
+                - bucketPrefix
+              properties:
+                repoUrl:
+                  type: string
+                  description: URL du dépôt Git (ex: https://gitlab.com/org/repo.git)
+                branch:
+                  type: string
+                  description: Branche Git à suivre (ex: main)
+                bucketPrefix:
+                  type: string
+                  description: Préfixe dans le bucket GCS pour isoler ce workspace (ex: workspaces/my-repo)
+            status:
+              type: object
+              properties:
+                phase:
+                  type: string
+                  description: Phase courante du workspace (Pending, Synced, Error)
+      subresources:
+        status: {}

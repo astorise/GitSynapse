@@ -8,9 +8,12 @@ spec:
     metadata:
       annotations:
         linkerd.io/inject: "enabled"
+        autoscaling.knative.dev/window: "120s"
+        autoscaling.knative.dev/target: "10"
+        gke-gcsfuse/volumes: "true"
     spec:
       containers:
-        - image: git-faas-layer:latest
+        - image: europe-west9-docker.pkg.dev/gitsynapse/gitsynapse-repo/git-faas-layer:latest
           ports:
             - containerPort: 8080
               protocol: TCP
@@ -27,3 +30,14 @@ spec:
             requests:
               cpu: "100m"
               memory: "128Mi"
+          volumeMounts:
+            - name: gcs-workspaces
+              mountPath: /mnt/workspaces
+      volumes:
+        - name: gcs-workspaces
+          csi:
+            driver: gcsfuse.csi.storage.gke.io
+            readOnly: false
+            volumeAttributes:
+              bucketName: gitsynapse-workspaces
+              mountOptions: "implicit-dirs"

@@ -1,0 +1,52 @@
+name: Deploy to GKE
+
+on:
+  workflow_run:
+    workflows: ["Rust CI"]
+    types:
+      - completed
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud (Workload Identity)
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.WIF_PROVIDER }}
+          service_account: ${{ secrets.WIF_SERVICE_ACCOUNT }}
+
+      - name: Configure Docker for Artifact Registry
+        run: gcloud auth configure-docker europe-west9-docker.pkg.dev --quiet
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: git-faas-layer
+          push: true
+          tags: europe-west9-docker.pkg.dev/gitsynapse/gitsynapse-repo/git-faas-layer:${{ github.sha }},europe-west9-docker.pkg.dev/gitsynapse/gitsynapse-repo/git-faas-layer:latest
+
+      - name: Get GKE credentials
+        uses: google-github-actions/get-gke-credentials@v2
+        with:
+          cluster_name: gitsynapse-cluster
+          location: europe-west9-b
+
+      - name: Deploy CRD GitWorkspace
+        run: kubectl apply -f k8s/crd-git-workspace.yaml
+
+      - name: Deploy Knative Service
+        run: kubectl apply -f git-faas-layer/k8s/knative-service.yaml
