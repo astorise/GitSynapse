@@ -1,0 +1,38 @@
+name: Deploy to GKE (manual)
+
+on:
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        description: "Tag de l'image à déployer (défaut: latest)"
+        required: false
+        default: "latest"
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud (Workload Identity)
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.WIF_PROVIDER }}
+          service_account: ${{ secrets.WIF_SERVICE_ACCOUNT }}
+
+      - name: Get GKE credentials
+        uses: google-github-actions/get-gke-credentials@v2
+        with:
+          cluster_name: gitsynapse-cluster
+          location: europe-west9-b
+
+      - name: Deploy CRD GitWorkspace
+        run: kubectl apply -f k8s/crd-git-workspace.yaml
+
+      - name: Deploy Knative Service
+        run: kubectl apply -f git-faas-layer/k8s/knative-service.yaml

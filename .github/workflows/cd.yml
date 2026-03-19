@@ -39,14 +39,3 @@ jobs:
           push: true
           tags: europe-west9-docker.pkg.dev/gitsynapse/gitsynapse-repo/git-faas-layer:${{ github.sha }},europe-west9-docker.pkg.dev/gitsynapse/gitsynapse-repo/git-faas-layer:latest
 
-      - name: Get GKE credentials
-        uses: google-github-actions/get-gke-credentials@v2
-        with:
-          cluster_name: gitsynapse-cluster
-          location: europe-west9-b
-
-      - name: Deploy CRD GitWorkspace
-        run: kubectl apply -f k8s/crd-git-workspace.yaml
-
-      - name: Deploy Knative Service
-        run: kubectl apply -f git-faas-layer/k8s/knative-service.yaml
