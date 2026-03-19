@@ -27,18 +27,18 @@ spec:
               properties:
                 repoUrl:
                   type: string
-                  description: URL du dépôt Git (ex: https://gitlab.com/org/repo.git)
+                  description: "URL du dépôt Git (ex: https://gitlab.com/org/repo.git)"
                 branch:
                   type: string
-                  description: Branche Git à suivre (ex: main)
+                  description: "Branche Git à suivre (ex: main)"
                 bucketPrefix:
                   type: string
-                  description: Préfixe dans le bucket GCS pour isoler ce workspace (ex: workspaces/my-repo)
+                  description: "Préfixe dans le bucket GCS pour isoler ce workspace (ex: workspaces/my-repo)"
             status:
               type: object
               properties:
                 phase:
                   type: string
-                  description: Phase courante du workspace (Pending, Synced, Error)
+                  description: "Phase courante du workspace (Pending, Synced, Error)"
       subresources:
         status: {}
